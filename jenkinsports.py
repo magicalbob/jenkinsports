@@ -23,14 +23,23 @@ def jenkinsPorts(args):
   except:
     print "Error: opening config file " + conf_file
     sys.exit(1)
+ 
+  job_found=False
+ 
+  try:
+    for job in conf:
+      if str(job) == str(vars(args)['job name'][0]):
+        job_found=True
+        for port_no in conf[job]:
+          print "export " + str(port_no) + "=" + str(conf[job][port_no])
+        sys.exit(0)
+  except:
+    # print "Unexpected error:", sys.exc_info()[0]
+    pass
   
-  for job in conf:
-    if str(job) == str(vars(args)['job name'][0]):
-      for port_no in conf[job]:
-        print "export " + port_no + "=" + conf[job][port_no]
-      sys.exit(0)
-  
-  sys.exit(2)
+  if job_found==False:
+    print "Job not in config file"
+    sys.exit(2)
 
 if __name__ == '__main__':
   args=commandArgs(sys.argv[1:])
