@@ -121,5 +121,26 @@ class JenkinsPortsTestCase(unittest.TestCase):
     sys.stdout = saved_stdout
     assert output == 'export port1=12345'
 
+  def test_job_two_port(self):
+    """Job in config file with two ports set"""
+    myconfig=tempfile.mkstemp()
+    with open(myconfig[1],"w") as config_file:
+      config_file.write('my.job:\n  port1: 12345\n  port2: 23456\n')
+
+    args=commandArgs(['-f',myconfig[1],'my.job'])
+
+    saved_stdout = sys.stdout
+    out = StringIO()
+    sys.stdout = out
+
+    try:
+      jenkinsPorts(args) 
+    except:
+      pass
+
+    output = out.getvalue().strip()
+    sys.stdout = saved_stdout
+    assert output == 'export port2=23456\nexport port1=12345'
+
 if __name__ == '__main__':
     unittest.main()
