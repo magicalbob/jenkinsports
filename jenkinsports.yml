@@ -1,0 +1,4 @@
+ClaimCapture - Integration:
+  memcached1: '11211'
+  memcached2: '11212'
+
