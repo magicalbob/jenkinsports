@@ -4,11 +4,11 @@ import yaml
 import sys
 import argparse
 
-def commandArgs():
+def commandArgs(cmdLine):
   parser = argparse.ArgumentParser(description='Jenkins Port Register')
   parser.add_argument('-f','--file',help='Register file')
   parser.add_argument('job name',nargs=1,help='Jenkins Job Name')
-  args = parser.parse_args()
+  args = parser.parse_args(cmdLine)
   return args
 
 def jenkinsPorts(args):
@@ -33,5 +33,5 @@ def jenkinsPorts(args):
   sys.exit(2)
 
 if __name__ == '__main__':
-  args=commandArgs()
+  args=commandArgs(sys.argv[1:])
   jenkinsPorts(args)
