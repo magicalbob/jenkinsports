@@ -33,6 +33,7 @@ def validateConf(conf):
           return(ERR_DUPLICATE_PORT)
         else:
           portList.append(conf[job][port_no])
+  return 0
 
 def jenkinsPorts(args):
   if vars(args)['file'] == None:
@@ -47,7 +48,9 @@ def jenkinsPorts(args):
     print "Error: opening config file " + conf_file
     return(ERR_OPENING_CONF)
 
-  validateConf(conf)
+  valid=validateConf(conf)
+  if valid != 0:
+    return valid
  
   job_found=False
  

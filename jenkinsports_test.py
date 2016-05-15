@@ -139,5 +139,71 @@ class JenkinsPortsTestCase(unittest.TestCase):
     sys.stdout = saved_stdout
     assert output == 'export port2=23456\nexport port1=12345'
 
+  def test_two_jobs_first(self):
+    """Job in config file, first of 2 jobs"""
+    myconfig=tempfile.mkstemp()
+    with open(myconfig[1],"w") as config_file:
+      config_file.write('right.job:\n  port1: 12345\n  port2: 23456\n')
+      config_file.write('wrong.job:\n  port1: 34567\n  port2: 45678\n')
+
+    args=commandArgs(['-f',myconfig[1],'right.job'])
+
+    saved_stdout = sys.stdout
+    out = StringIO()
+    sys.stdout = out
+
+    try:
+      jenkinsPorts(args) 
+    except:
+      pass
+
+    output = out.getvalue().strip()
+    sys.stdout = saved_stdout
+    assert output == 'export port2=23456\nexport port1=12345'
+
+  def test_two_jobs_last(self):
+    """Job in config file, first of 2 jobs"""
+    myconfig=tempfile.mkstemp()
+    with open(myconfig[1],"w") as config_file:
+      config_file.write('wrong.job:\n  port1: 12345\n  port2: 23456\n')
+      config_file.write('right.job:\n  port1: 34567\n  port2: 45678\n')
+
+    args=commandArgs(['-f',myconfig[1],'right.job'])
+
+    saved_stdout = sys.stdout
+    out = StringIO()
+    sys.stdout = out
+
+    try:
+      jenkinsPorts(args) 
+    except:
+      pass
+
+    output = out.getvalue().strip()
+    sys.stdout = saved_stdout
+    assert output == 'export port2=45678\nexport port1=34567'
+
+  def test_duplicate_port(self):
+    """Job in config file, first of 2 jobs"""
+    myconfig=tempfile.mkstemp()
+    with open(myconfig[1],"w") as config_file:
+      config_file.write('wrong.job:\n  port1: 12345\n  port2: 23456\n')
+      config_file.write('right.job:\n  port1: 23456\n  port2: 45678\n')
+
+    args=commandArgs(['-f',myconfig[1],'right.job'])
+
+    saved_stdout = sys.stdout
+    out = StringIO()
+    sys.stdout = out
+
+    try:
+      jenkinsPorts(args) 
+    except:
+      pass
+
+    output = out.getvalue().strip()
+    sys.stdout = saved_stdout
+    assert output == 'Duplicate port 23456 in conf'
+
 if __name__ == '__main__':
     unittest.main()
