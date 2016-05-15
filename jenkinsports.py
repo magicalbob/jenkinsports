@@ -4,12 +4,35 @@ import yaml
 import sys
 import argparse
 
+ERR_OPENING_CONF   = 1
+ERR_UNKNOWN_JOB    = 2
+ERR_DUPLICATE_PORT = 3
+
+def isIterable(varToCheck):
+  retValue=True
+  try:
+    _ = (e for e in varToCheck)
+  except:
+    retValue=False
+  return retValue
+
 def commandArgs(cmdLine):
   parser = argparse.ArgumentParser(description='Jenkins Port Register')
   parser.add_argument('-f','--file',help='Register file')
   parser.add_argument('job name',nargs=1,help='Jenkins Job Name')
   args = parser.parse_args(cmdLine)
   return args
+
+def validateConf(conf):
+  portList=[]
+  if isIterable(conf) > 0:
+    for job in conf:
+      for port_no in conf[job]:
+        if conf[job][port_no] in portList:
+          print "Duplicate port %s in conf" % (str(conf[job][port_no]))
+          return(ERR_DUPLICATE_PORT)
+        else:
+          portList.append(conf[job][port_no])
 
 def jenkinsPorts(args):
   if vars(args)['file'] == None:
@@ -22,25 +45,24 @@ def jenkinsPorts(args):
       conf = yaml.load(confile)
   except:
     print "Error: opening config file " + conf_file
-    sys.exit(1)
+    return(ERR_OPENING_CONF)
+
+  validateConf(conf)
  
   job_found=False
  
-  try:
+  if isIterable(conf):
     for job in conf:
       if str(job) == str(vars(args)['job name'][0]):
         job_found=True
         for port_no in conf[job]:
           print "export " + str(port_no) + "=" + str(conf[job][port_no])
-        sys.exit(0)
-  except:
-    # print "Unexpected error:", sys.exc_info()[0]
-    pass
+        return(0)
   
   if job_found==False:
     print "Job not in config file"
-    sys.exit(2)
+    return(ERR_UNKNOWN_JOB)
 
 if __name__ == '__main__':
   args=commandArgs(sys.argv[1:])
-  jenkinsPorts(args)
+  sys.exit(jenkinsPorts(args))

@@ -91,10 +91,7 @@ class JenkinsPortsTestCase(unittest.TestCase):
     out = StringIO()
     sys.stdout = out
 
-    try:
-      jenkinsPorts(args) 
-    except:
-      pass
+    retCode=jenkinsPorts(args) 
 
     output = out.getvalue().strip()
     assert output == 'Job not in config file'
